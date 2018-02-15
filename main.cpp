@@ -1,4 +1,5 @@
 #include <iostream>
+#include <libtelegram/libtelegram.h>
 #include <args.hxx>
 #include <INIReader.h>
 #include "version.h"
@@ -63,7 +64,19 @@ auto main(int argc, char *argv[])->int {
       return EXIT_FAILURE;
     }
 
-    // TODO
+    if(verbose) {
+      std::cout << "Launching Telegram polling listener" << std::endl;
+    }
+    telegram::sender sender(token);                                             // initialise the telegram sender with our token
+    telegram::listener::poll listener(sender);                                  // create a polling listener
+
+    // TODO: listener.set_callback_message([&](telegram::types::message const &message){...
+
+    listener.set_num_threads(1);                                                // run single-threaded
+    listener.run();                                                             // launch the Telegram listener - this call blocks until interrupted
+    if(verbose) {
+      std::cout << "Telegram polling loop completed." << std::endl;
+    }
 
     return EXIT_SUCCESS;
   } catch(args::Help) {

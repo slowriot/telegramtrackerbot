@@ -80,7 +80,7 @@ BOOST_CGI_NAMESPACE_BEGIN
     typedef common::map                     map_type;
     typedef common::form_part::string_type  string_type;
     typedef common::form_part::buffer_type  buffer_type;
-    typedef boost::asio::mutable_buffers_1  mutable_buffers_type;
+    typedef boost::asio::mutable_buffer     mutable_buffers_type;
 
     /// The context used for parsing.
     struct context

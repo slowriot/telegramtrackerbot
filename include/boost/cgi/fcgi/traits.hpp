@@ -101,8 +101,8 @@ BOOST_CGI_NAMESPACE_BEGIN
       // Internal types (advanced)
 
       typedef boost::array<unsigned char, 8>         header_buffer_type;
-      typedef boost::asio::const_buffers_1           const_buffers_type;
-      typedef boost::asio::mutable_buffers_1         mutable_buffers_type;
+      typedef boost::asio::const_buffer              const_buffers_type;
+      typedef boost::asio::mutable_buffer            mutable_buffers_type;
       typedef fcgi::fcgi_request_service<
                   protocol_type
               >                                      request_service_type;

@@ -70,10 +70,26 @@ auto main(int argc, char *argv[])->int {
     telegram::sender sender(token);                                             // initialise the telegram sender with our token
     telegram::listener::poll listener(sender);                                  // create a polling listener
 
-    // TODO: listener.set_callback_message([&](telegram::types::message const &message){...
+    int_fast64_t announce_chat_id = 0;
+
+    listener.set_callback_message([&](telegram::types::message const &message){
+      auto const message_chat_id = message.chat.id;
+      if(message.text == "/start") {
+        sender.send_message(message_chat_id, "I am online.  You will now receive all tracker updates.");
+        #ifndef NDEBUG
+          sender.send_message(message_chat_id, "DEBUG: Chat ID is " + std::to_string(message_chat_id));
+        #endif // NDEBUG
+        announce_chat_id = message_chat_id;
+      }
+    });
 
     listener.set_num_threads(1);                                                // run single-threaded
     listener.run();                                                             // launch the Telegram listener - this call blocks until interrupted
+    #ifndef NDEBUG
+      if(announce_chat_id != 0) {
+        sender.send_message(announce_chat_id, "DEBUG: Terminating.");
+      }
+    #endif // NDEBUG
     if(verbose) {
       std::cout << "Telegram polling loop completed." << std::endl;
     }

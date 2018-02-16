@@ -10,7 +10,11 @@ This is a standalone bot intended to be run on your own server with an individua
 * TK103 / TK102B clones using the KX402 protocol.
 
 ## Building
-A simple `make` should do the trick.  
+The quickest way to build the bot is using CMake:
+* `mkdir build`
+* `cd build`
+* `cmake ..`
+* `make`
 
 A Code::Blocks workspace and project are also included for easy building.
 

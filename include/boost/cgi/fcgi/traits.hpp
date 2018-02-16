@@ -9,6 +9,8 @@
 #ifndef BOOST_CGI_FCGI_TRAITS_HPP_INCLUDED_
 #define BOOST_CGI_FCGI_TRAITS_HPP_INCLUDED_
 
+#define BOOST_ASIO_ENABLE_OLD_SERVICES
+
 #include <boost/asio/ip/tcp.hpp>
 #include <boost/none.hpp>
 #include <boost/config.hpp>
@@ -17,8 +19,6 @@
 #include "boost/cgi/common/protocol_traits.hpp"
 #include "boost/cgi/common/role_type.hpp"
 #include "boost/cgi/common/tags.hpp"
-
-
 
 #include "boost/cgi/fwd/basic_client_fwd.hpp"
 #include "boost/cgi/fwd/basic_connection_fwd.hpp"
@@ -50,7 +50,7 @@ BOOST_CGI_NAMESPACE_BEGIN
   class fcgi_request_service;
 
  namespace common {
- 
+
     /// Common Traits for FastCGI.
     template<>
     struct protocol_traits<tags::fcgi>
@@ -68,7 +68,7 @@ BOOST_CGI_NAMESPACE_BEGIN
       typedef basic_protocol_service<
                   protocol_type
               >                                      protocol_service_type;
-      typedef basic_request<protocol_type>           request_type; 
+      typedef basic_request<protocol_type>           request_type;
       typedef basic_client<protocol_type>            client_type;
 #if defined(BOOST_WINDOWS)
       typedef basic_connection<
@@ -114,7 +114,7 @@ BOOST_CGI_NAMESPACE_BEGIN
       typedef boost::asio::socket_acceptor_service<
                   native_protocol_type
               >                                      acceptor_service_type;
-      typedef 
+      typedef
           acceptor_service_type::implementation_type acceptor_impl_type;
       typedef acceptor_service_type::native_handle_type
                                                      native_handle_type;

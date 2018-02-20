@@ -43,10 +43,10 @@ BOOST_CGI_NAMESPACE_BEGIN
     typedef typename
         service_type::accept_handler_type          accept_handler_type;
 
-    template<typename IoServiceProvider>
+    template<typename IoContextProvider>
     explicit basic_request_acceptor(
-          common::basic_protocol_service<protocol_type, IoServiceProvider>& ps)
-      : boost::asio::basic_io_object<service_type>(ps.get_io_service())
+          common::basic_protocol_service<protocol_type, IoContextProvider>& ps)
+      : boost::asio::basic_io_object<service_type>(ps.get_io_context())
     {
       this->get_service().set_protocol_service(this->get_implementation(), ps);
 
@@ -56,12 +56,12 @@ BOOST_CGI_NAMESPACE_BEGIN
       }
     }
 
-    template<typename IoServiceProvider, typename InternetProtocol>
+    template<typename IoContextProvider, typename InternetProtocol>
     explicit basic_request_acceptor(
-          common::basic_protocol_service<protocol_type, IoServiceProvider>& ps,
+          common::basic_protocol_service<protocol_type, IoContextProvider>& ps,
           const boost::asio::ip::basic_endpoint<InternetProtocol>& endpoint,
           bool reuse_addr = true)
-      : boost::asio::basic_io_object<service_type>(ps.get_io_service())
+      : boost::asio::basic_io_object<service_type>(ps.get_io_context())
     {
       this->get_service().set_protocol_service(this->get_implementation(), ps);
 
@@ -79,12 +79,12 @@ BOOST_CGI_NAMESPACE_BEGIN
       detail::throw_error(ec);
     }
 
-    template<typename IoServiceProvider, typename InternetProtocol>
+    template<typename IoContextProvider, typename InternetProtocol>
     explicit basic_request_acceptor(
-          common::basic_protocol_service<protocol_type, IoServiceProvider>& ps,
+          common::basic_protocol_service<protocol_type, IoContextProvider>& ps,
           const InternetProtocol& ip,
           const native_handle_type& native_acceptor)
-      : boost::asio::basic_io_object<service_type>(ps.get_io_service())
+      : boost::asio::basic_io_object<service_type>(ps.get_io_context())
     {
       this->get_service().set_protocol_service(this->get_implementation(), ps);
       boost::system::error_code ec;

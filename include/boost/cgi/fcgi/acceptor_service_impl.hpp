@@ -105,7 +105,7 @@ BOOST_CGI_NAMESPACE_BEGIN
 
      };
 
-     explicit acceptor_service_impl(::BOOST_CGI_NAMESPACE::common::io_service& ios)
+     explicit acceptor_service_impl(::BOOST_CGI_NAMESPACE::common::io_context& ios)
        : detail::service_base< ::BOOST_CGI_NAMESPACE::fcgi::acceptor_service_impl<Protocol> >(ios)
        , acceptor_service_(boost::asio::use_service<acceptor_service_type>(ios))
        , strand_(ios)
@@ -364,7 +364,7 @@ BOOST_CGI_NAMESPACE_BEGIN
 					  , typename implementation_type::request_type& request
                       , Handler handler)
      {
-       this->get_io_service().post(
+       this->get_io_context().post(
          detail::accept_handler<self_type, Handler>(*this, impl, request, handler)
        );
      }
@@ -441,7 +441,7 @@ BOOST_CGI_NAMESPACE_BEGIN
    public:
      /// The underlying socket acceptor service.
      acceptor_service_type&          acceptor_service_;
-     boost::asio::io_service::strand strand_;
+     boost::asio::io_context::strand strand_;
    };
 
  } // namespace fcgi

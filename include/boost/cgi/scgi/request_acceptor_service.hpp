@@ -73,7 +73,7 @@ BOOST_CGI_NAMESPACE_BEGIN
        endpoint_type                                 endpoint_;
      };
 
-     explicit scgi_request_acceptor_service(::BOOST_CGI_NAMESPACE::common::io_service& ios)
+     explicit scgi_request_acceptor_service(::BOOST_CGI_NAMESPACE::common::io_context& ios)
        : detail::service_base< ::BOOST_CGI_NAMESPACE::scgi_request_acceptor_service<Protocol> >(ios)
        , acceptor_service_(boost::asio::use_service<acceptor_service_type>(ios))
        , strand_(ios)
@@ -322,7 +322,7 @@ BOOST_CGI_NAMESPACE_BEGIN
    public:
      /// The underlying socket acceptor service.
      acceptor_service_type&          acceptor_service_;
-     boost::asio::io_service::strand strand_;
+     boost::asio::io_context::strand strand_;
    };
 
  //} // namespace scgi

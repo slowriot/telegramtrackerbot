@@ -492,7 +492,7 @@ BOOST_CGI_NAMESPACE_BEGIN
     {
       // clear the header first (might be unneccesary).
       impl.header_buf_ = header_buffer_type();
-      this->get_io_service().poll();
+      this->get_io_context().poll();
 
       async_read(*impl.client_.connection(), buffer(impl.header_buf_), [&](boost::system::error_code const &e, std::size_t bytes_transfered __attribute__((__unused__))) -> void
       {
@@ -501,9 +501,9 @@ BOOST_CGI_NAMESPACE_BEGIN
 
       while (impl.header_buf_ == header_buffer_type() && !ec)
       {
-        this->get_io_service().run_one();
-        if (this->get_io_service().stopped())
-          this->get_io_service().reset();
+        this->get_io_context().run_one();
+        if (this->get_io_context().stopped())
+          this->get_io_context().reset();
       }
 
       return ec;

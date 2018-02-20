@@ -41,7 +41,7 @@ void async_handshake(boost::asio::ip::tcp::socket& socket,
     const std::string& /*host*/, Handler handler)
 {
   boost::system::error_code ec;
-  socket.get_io_service().post(boost::asio::detail::bind_handler(handler, ec));
+  socket.get_io_context().post(boost::asio::detail::bind_handler(handler, ec));
 }
 
 #if !defined(URDL_DISABLE_SSL)

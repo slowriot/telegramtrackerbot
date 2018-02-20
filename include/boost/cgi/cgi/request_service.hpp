@@ -91,7 +91,7 @@ BOOST_CGI_NAMESPACE_BEGIN
     };
     
 
-    cgi_request_service(common::io_service& ios)
+    cgi_request_service(common::io_context& ios)
       : detail::service_base<cgi_request_service>(ios)
     {
     }
@@ -99,7 +99,7 @@ BOOST_CGI_NAMESPACE_BEGIN
     void construct(implementation_type& impl)
     {
       impl.client_.set_connection(
-        connection_type::create(this->get_io_service())
+        connection_type::create(this->get_io_context())
       );
     }
 

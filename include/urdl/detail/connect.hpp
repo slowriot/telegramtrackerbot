@@ -79,7 +79,7 @@ public:
     socket_.open(boost::asio::ip::tcp::v4(), ec);
     if (ec)
     {
-      URDL_CORO_YIELD(socket_.get_io_service().post(
+      URDL_CORO_YIELD(socket_.get_io_context().post(
             boost::asio::detail::bind_handler(*this, ec)));
       handler_(ec);
       return;

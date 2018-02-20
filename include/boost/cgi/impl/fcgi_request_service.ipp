@@ -801,19 +801,19 @@ BOOST_CGI_NAMESPACE_BEGIN
       switch(fcgi::spec::get_type(impl.header_buf_))
       {
       case 1: process_begin_request(impl, fcgi::spec::get_request_id(impl.header_buf_)
-              , buf.data()
+              , static_cast<unsigned char*>(buf.data())
               , boost::asio::buffer_size(buf), ec);
               break;
       case 2: process_abort_request(impl, fcgi::spec::get_request_id(impl.header_buf_)
-              , buf.data()
+              , static_cast<unsigned char*>(buf.data())
               , boost::asio::buffer_size(buf), ec);
               break;
       case 4: process_params(impl, fcgi::spec::get_request_id(impl.header_buf_)
-              , buf.data()
+              , static_cast<unsigned char*>(buf.data())
               , boost::asio::buffer_size(buf), ec);
               break;
       case 5: process_stdin(impl, fcgi::spec::get_request_id(impl.header_buf_)
-              , buf.data()
+              , static_cast<unsigned char*>(buf.data())
               , boost::asio::buffer_size(buf), ec);
               break;
       default: break;

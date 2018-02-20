@@ -524,7 +524,8 @@ BOOST_CGI_NAMESPACE_BEGIN
       boost::asio::async_read(
           *impl.client_.connection(), buffer(impl.header_buf_)
         , boost::asio::transfer_all()
-        , strand_.wrap(
+        , boost::asio::bind_executor(
+              strand_,
               boost::bind(&self_type::handle_read_header,
                   this, boost::ref(impl), opts, handler,
                   boost::asio::placeholders::error,
@@ -800,19 +801,19 @@ BOOST_CGI_NAMESPACE_BEGIN
       switch(fcgi::spec::get_type(impl.header_buf_))
       {
       case 1: process_begin_request(impl, fcgi::spec::get_request_id(impl.header_buf_)
-              , boost::asio::buffer_cast<unsigned char*>(buf)
+              , buf.data()
               , boost::asio::buffer_size(buf), ec);
               break;
       case 2: process_abort_request(impl, fcgi::spec::get_request_id(impl.header_buf_)
-              , boost::asio::buffer_cast<unsigned char*>(buf)
+              , buf.data()
               , boost::asio::buffer_size(buf), ec);
               break;
       case 4: process_params(impl, fcgi::spec::get_request_id(impl.header_buf_)
-              , boost::asio::buffer_cast<unsigned char*>(buf)
+              , buf.data()
               , boost::asio::buffer_size(buf), ec);
               break;
       case 5: process_stdin(impl, fcgi::spec::get_request_id(impl.header_buf_)
-              , boost::asio::buffer_cast<unsigned char*>(buf)
+              , buf.data()
               , boost::asio::buffer_size(buf), ec);
               break;
       default: break;

@@ -235,7 +235,8 @@ BOOST_CGI_NAMESPACE_BEGIN
          // ...otherwise accept a new connection.
          acceptor_service_.async_accept(impl.acceptor_,
              new_request->client().connection()->next_layer(), 0,
-             strand_.wrap(
+             boost::asio::bind_executor(
+               strand_,
                boost::bind(&self_type::handle_accept
                 , this, boost::ref(impl), new_request, handler, _1
                )
@@ -245,7 +246,8 @@ BOOST_CGI_NAMESPACE_BEGIN
        else
        {
          impl.service_->post(
-           strand_.wrap(
+           boost::asio::bind_executor(
+             strand_,
              boost::bind(&self_type::handle_accept
                  , this, boost::ref(impl), new_request, handler, boost::system::error_code()
                )

@@ -377,7 +377,12 @@ public:
       void (boost::system::error_code))
   async_open(const url& u, Handler handler)
   {
-#if (BOOST_VERSION >= 105400)
+#if (BOOST_VERSION >= 106600)
+    boost::asio::async_result<Handler,
+      void (boost::system::error_code)> result(handler);
+    typedef Handler real_handler_type;
+    Handler real_handler(handler);
+#elif (BOOST_VERSION >= 105400)
     typedef typename boost::asio::handler_type<Handler,
       void (boost::system::error_code)>::type real_handler_type;
     real_handler_type real_handler(handler);
@@ -658,7 +663,11 @@ public:
       void (boost::system::error_code, std::size_t))
   async_read_some(const MutableBufferSequence& buffers, Handler handler)
   {
-#if (BOOST_VERSION >= 105400)
+#if (BOOST_VERSION >= 106600)
+    boost::asio::async_result<Handler,
+      void (boost::system::error_code)> result(handler);
+    Handler real_handler(handler);
+#elif (BOOST_VERSION >= 105400)
     typedef typename boost::asio::handler_type<Handler,
       void (boost::system::error_code, std::size_t)>::type real_handler_type;
     real_handler_type real_handler(handler);
@@ -683,7 +692,7 @@ public:
     default:
       boost::system::error_code ec
         = boost::asio::error::operation_not_supported;
-      io_context_.post(boost::asio::detail::bind_handler(real_handler, ec, 0));
+      boost::asio::post(boost::asio::detail::bind_handler(real_handler, ec, 0));
       break;
     }
 
@@ -748,8 +757,7 @@ private:
         else
         {
           ec = boost::asio::error::operation_not_supported;
-          this_->io_context_.post(
-              boost::asio::detail::bind_handler(handler_, ec));
+          boost::asio::post(boost::asio::detail::bind_handler(handler_, ec));
           return;
         }
       }

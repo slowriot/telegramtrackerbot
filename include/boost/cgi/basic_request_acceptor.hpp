@@ -75,7 +75,7 @@ BOOST_CGI_NAMESPACE_BEGIN
       }
       bind(endpoint, ec);
       detail::throw_error(ec);
-      listen(boost::asio::socket_base::max_connections, ec);
+      listen(boost::asio::socket_base::max_listen_connections, ec);
       detail::throw_error(ec);
     }
 
@@ -125,7 +125,7 @@ BOOST_CGI_NAMESPACE_BEGIN
     }
 
     /// Set the acceptor to listen
-    void listen(int backlog = boost::asio::socket_base::max_connections)
+    void listen(int backlog = boost::asio::socket_base::max_listen_connections)
     {
       boost::system::error_code ec;
       this->get_service().listen(this->get_implementation(), backlog, ec);

@@ -59,7 +59,7 @@ public:
   {
     boost::system::error_code ec;
     open(u, ec);
-    io_context_.post(boost::asio::detail::bind_handler(handler, ec));
+    boost::asio::post(boost::asio::detail::bind_handler(handler, ec));
   }
 
   boost::system::error_code close(boost::system::error_code& ec)
@@ -94,7 +94,7 @@ public:
       size_t length = boost::asio::buffer_size(buffer);
       if (length > 0)
       {
-        file_.read(boost::asio::buffer_cast<char*>(buffer), length);
+        file_.read(static_cast<char*>(buffer.data()), length);
         length = file_.gcount();
         if (length == 0 && !file_)
           ec = boost::asio::error::eof;
@@ -111,7 +111,7 @@ public:
   {
     boost::system::error_code ec;
     std::size_t bytes_transferred = read_some(buffers, ec);
-    io_context_.post(boost::asio::detail::bind_handler(
+    boost::asio::post(boost::asio::detail::bind_handler(
           handler, ec, bytes_transferred));
   }
 

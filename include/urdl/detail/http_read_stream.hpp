@@ -394,7 +394,8 @@ public:
   boost::system::error_code close(boost::system::error_code& ec)
   {
     resolver_.cancel();
-    if (!socket_.lowest_layer().close(ec))
+    socket_.lowest_layer().close(ec);
+    if (!ec)
     {
       request_buffer_.consume(request_buffer_.size());
       reply_buffer_.consume(reply_buffer_.size());
@@ -448,7 +449,7 @@ public:
         if (length > 0)
         {
           bytes_transferred += reply_buffer_.sgetn(
-              boost::asio::buffer_cast<char*>(buffer), length);
+              static_cast<char*>(buffer.data()), length);
         }
       }
       ec = boost::system::error_code();
@@ -520,7 +521,7 @@ public:
     {
       boost::system::error_code ec;
       std::size_t bytes_transferred = read_some(buffers, ec);
-      socket_.get_io_context().post(boost::asio::detail::bind_handler(
+      boost::asio::post(boost::asio::detail::bind_handler(
             handler, ec, bytes_transferred));
       return;
     }

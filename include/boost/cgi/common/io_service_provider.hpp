@@ -72,7 +72,7 @@ BOOST_CGI_NAMESPACE_BEGIN
 
     void reset()
     {
-      io_context_.reset();
+      io_context_.restart();
     }
   private:
     ::BOOST_CGI_NAMESPACE::common::io_context io_context_;
@@ -269,7 +269,7 @@ BOOST_CGI_NAMESPACE_BEGIN
 
  // **FIXME**
  using common::io_context_provider;
-  
+
 BOOST_CGI_NAMESPACE_END
 
 #include "boost/cgi/detail/pop_options.hpp"

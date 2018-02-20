@@ -80,7 +80,7 @@ BOOST_CGI_NAMESPACE_BEGIN
     , headers_terminated_(false)
     , charset_("ISO-8859-1")
   {
-    //ostream_.openmode = 
+    //ostream_.openmode =
   }
 
   /// Construct with a particular buffer
@@ -92,7 +92,7 @@ BOOST_CGI_NAMESPACE_BEGIN
   basic_response<T>::basic_response(common::streambuf* buf,
       http::status_code sc)
 #if BOOST_WINDOWS
-    : ostream_(buf, std::ios::out | std::ios::binary) 
+    : ostream_(buf, std::ios::out | std::ios::binary)
 #else
     : ostream_(buf)
 #endif // defined (BOOST_WINDOWS)
@@ -106,7 +106,7 @@ BOOST_CGI_NAMESPACE_BEGIN
   template<typename T> BOOST_CGI_INLINE
   basic_response<T>::~basic_response()
   {
-  } 
+  }
 
     /// Clear the response buffer.
   template<typename T> BOOST_CGI_INLINE
@@ -130,7 +130,7 @@ BOOST_CGI_NAMESPACE_BEGIN
   void basic_response<T>::reset()
   {
     clear();
-    ostream_.flush(); 
+    ostream_.flush();
     buffer_->consume(buffer_->size());
     headers_terminated_ = false;
   }
@@ -178,7 +178,7 @@ BOOST_CGI_NAMESPACE_BEGIN
     flush(sws, ec);
     detail::throw_error(ec);
   }
-    
+
   /// Synchronously flush the data via the supplied request
   /**
    * This call uses error_code semantics. ie. ec is set if an error occurs.
@@ -276,7 +276,7 @@ BOOST_CGI_NAMESPACE_BEGIN
   template<typename AsyncWriteStream, typename Handler> BOOST_CGI_INLINE
   void basic_response<T>::async_send(AsyncWriteStream& aws, Handler handler)
   {
-    aws.io_service().post(
+    aws.io_context().post(
       boost::bind(&basic_response<char_type>::do_async_send, aws, handler)
     );
   }
@@ -315,7 +315,7 @@ BOOST_CGI_NAMESPACE_BEGIN
 
   /// Get the status code associated with the response.
   template<typename T> BOOST_CGI_INLINE
-  http::status_code 
+  http::status_code
   basic_response<T>::status() const
   {
     return http_status_;
@@ -336,7 +336,7 @@ BOOST_CGI_NAMESPACE_BEGIN
   }
 
   /// Get the response as a string.
-  template<typename T> BOOST_CGI_INLINE  
+  template<typename T> BOOST_CGI_INLINE
   typename basic_response<T>::string_type
     basic_response<T>::str(bool include_header) const
   {
@@ -352,11 +352,11 @@ BOOST_CGI_NAMESPACE_BEGIN
         body += *iter;
       }
     }
-    
+
     body += string_type(
-      boost::asio::buffer_cast<const char_type *>(buffer_->data()),
-      boost::asio::buffer_size(buffer_->data()));
-      
+      buffer_->data(),
+      buffer_->size());
+
     return body;
   }
 
@@ -447,12 +447,12 @@ BOOST_CGI_NAMESPACE_BEGIN
   template<typename T> BOOST_CGI_INLINE
   typename basic_response<T>::ostream_type&
     basic_response<T>::ostream() { return ostream_; }
-    
+
   /// Get the ostream containing the response body.
   template<typename T> BOOST_CGI_INLINE
   std::vector<typename basic_response<T>::string_type>&
     basic_response<T>::headers() { return headers_; }
-    
+
   // Send the response headers and mark that they've been sent.
   template<typename T>
   template<typename ConstBufferSequence> BOOST_CGI_INLINE
@@ -481,7 +481,7 @@ BOOST_CGI_NAMESPACE_BEGIN
     {
       boost::cgi::common::name type(iter->substr(0, 12).c_str());
       if (type == "Content-type")
-        iter->insert(iter->length()-2, "; charset=" + charset_);    
+        iter->insert(iter->length()-2, "; charset=" + charset_);
 
       //{ Construct a ConstBufferSequence out of the headers we have.
       headers.push_back(common::buffer(*iter));
@@ -492,7 +492,7 @@ BOOST_CGI_NAMESPACE_BEGIN
   }
 
   template<typename T> BOOST_CGI_INLINE
-  BOOST_CGI_NAMESPACE::common::basic_response<T>& 
+  BOOST_CGI_NAMESPACE::common::basic_response<T>&
     operator<< (BOOST_CGI_NAMESPACE::common::basic_response<T>& resp
                , BOOST_CGI_NAMESPACE::common::basic_cookie<T> const& ck)
   {

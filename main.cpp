@@ -1,5 +1,7 @@
 #include <iostream>
+#include <limits>
 #include <libtelegram/libtelegram.h>
+#include <boost/asio.hpp>
 #include <args.hxx>
 #include <INIReader.h>
 #include "version.h"
@@ -92,12 +94,49 @@ auto main(int argc, char *argv[])->int {
     });
 
     listener.set_num_threads(1);                                                // run single-threaded
-    listener.run();                                                             // launch the Telegram listener - this call blocks until interrupted
+    std::thread telegram_thread([&]{
+      listener.run();                                                           // launch the Telegram listener - this call blocks until interrupted
+    });
+
+    boost::asio::io_context io_context;
+    boost::asio::ip::tcp::acceptor acceptor(io_context, boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), port));
+    for(;;) {
+      std::cout << "DEBUG: acceptor starting" << std::endl;
+      boost::asio::ip::tcp::socket socket(io_context);
+      acceptor.accept(socket);
+
+      for(;;) {
+        std::cout << "DEBUG: message reading started" << std::endl;
+        boost::system::error_code error;
+        boost::asio::streambuf buffer;
+        boost::asio::read_until(socket, buffer, "(", error);
+        if(error == boost::asio::error::eof) {                                  // connection closed by peer
+          break;
+        } else if(error) {
+          throw boost::system::system_error(error);
+        }
+        std::cout << "DEBUG: read first bracket" << std::endl;
+        buffer.consume(std::numeric_limits<size_t>::max());                     // flush everything out up to the first bracket
+        boost::asio::read_until(socket, buffer, ")", error);
+        if(error == boost::asio::error::eof) {                                  // connection closed by peer
+          std::cout << "DEBUG: got EOF from client" << std::endl;
+          break;
+        } else if(error) {
+          throw boost::system::system_error(error);
+        }
+        std::cout << "DEBUG: read second bracket" << std::endl;
+        boost::asio::write(socket, boost::asio::buffer("OK\n"), error);
+      }
+      std::cout << "DEBUG: message reading completed" << std::endl;
+    }
+
     #ifndef NDEBUG
       if(announce_chat_id != 0) {
         sender.send_message(announce_chat_id, "DEBUG: Terminating.");
       }
     #endif // NDEBUG
+    listener.stop();
+    telegram_thread.join();
     if(verbose) {
       std::cout << "Telegram polling loop completed." << std::endl;
     }

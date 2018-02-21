@@ -115,7 +115,8 @@ auto main(int argc, char *argv[])->int {
             throw boost::system::system_error(error);
           }
         }
-        {
+        try {
+          std::cout << "DEBUG: read first bracket" << std::endl;
           boost::asio::streambuf buffer;
           boost::asio::read_until(socket, buffer, ")", error);
           if(error == boost::asio::error::eof) {                                // connection closed by peer
@@ -125,25 +126,106 @@ auto main(int argc, char *argv[])->int {
             throw boost::system::system_error(error);
           }
 
-          auto read_digits = [](boost::asio::streambuf &buffer, unsigned int digits) {
+          std::cout << "DEBUG: read buffer to bracket" << std::endl;
+
+          auto read_substr = [](boost::asio::streambuf &buffer, unsigned int digits) {
             std::string buf('\0', digits);
             buffer.sgetn(buf.data(), digits);
-            return std::stoi(buf);
+            return buf;
           };
 
-          unsigned int year  = 0;
-          unsigned int month = 0;
-          unsigned int day   = 0;
+          unsigned int serial  = 0;
+          serial = std::stoi(read_substr(buffer, 12));
+          std::cout << "DEBUG: serial: " << serial << std::endl;
 
-          year  = read_digits(buffer, 2);
-          month = read_digits(buffer, 2);
-          day   = read_digits(buffer, 2);
+          std::string command = read_substr(buffer, 4);
+          std::cout << "DEBUG: command: " << command << std::endl;
+          if(command == "BR00") {
+            unsigned int year    = 0;
+            unsigned int month   = 0;
+            unsigned int day     = 0;
+            unsigned int hours   = 0;
+            unsigned int minutes = 0;
+            unsigned int seconds = 0;
+            double latitude      = 0.0;
+            double longitude     = 0.0;
+            double speed         = 0.0;
+            double orientation   = 0.0;
+            std::string iostate;
+            std::string mileage;
 
-          std::cout << "DEBUG: year: " << year << std::endl;
-          std::cout << "DEBUG: month: " << month << std::endl;
-          std::cout << "DEBUG: day: " << day << std::endl;
+            year  = std::stoi(read_substr(buffer, 2));
+            month = std::stoi(read_substr(buffer, 2));
+            day   = std::stoi(read_substr(buffer, 2));
+            std::cout << "DEBUG: year: " << year << std::endl;
+            std::cout << "DEBUG: month: " << month << std::endl;
+            std::cout << "DEBUG: day: " << day << std::endl;
+
+            char available = '\0';
+            buffer.sgetn(&available, 1);
+            if(available != 'A') {
+              if(available == 'V') {
+                std::cout << "DEBUG: no data available" << std::endl;
+              } else {
+                std::cout << "DEBUG: received nonsense instead of A or V" << std::endl;
+              }
+              break;
+            }
+
+            latitude = std::stod(read_substr(buffer, 9));
+            char northsouth = '\0';
+            buffer.sgetn(&northsouth, 1);
+            if(northsouth != 'N') {
+              if(northsouth == 'S') {
+                latitude = 0.0 - latitude;
+              } else {
+                std::cout << "DEBUG: received nonsense instead of N/S heading" << std::endl;
+                break;
+              }
+            }
+
+            longitude = std::stod(read_substr(buffer, 10));
+            char eastwest = '\0';
+            if(eastwest != 'E') {
+              if(eastwest == 'W') {
+                longitude = 0.0 - longitude;
+              } else {
+                std::cout << "DEBUG: received nonsense instead of E/W heading" << std::endl;
+                break;
+              }
+            }
+            speed       = std::stod(read_substr(buffer, 5));
+            hours       = std::stoi(read_substr(buffer, 2));
+            minutes     = std::stoi(read_substr(buffer, 2));
+            seconds     = std::stoi(read_substr(buffer, 2));
+            orientation = std::stod(read_substr(buffer, 6));
+            iostate     =           read_substr(buffer, 8);
+            std::cout << "DEBUG: hours: " << hours << std::endl;
+            std::cout << "DEBUG: minutes: " << minutes << std::endl;
+            std::cout << "DEBUG: seconds: " << seconds << std::endl;
+            std::cout << "DEBUG: latitude: " << latitude << std::endl;
+            std::cout << "DEBUG: longitude: " << longitude << std::endl;
+            std::cout << "DEBUG: speed: " << speed << std::endl;
+            std::cout << "DEBUG: orientation: " << orientation << std::endl;
+            std::cout << "DEBUG: iostate: " << iostate << std::endl;
+
+            char milepost = '\0';
+            buffer.sgetn(&milepost, 1);
+            if(milepost != 'L') {
+              std::cout << "DEBUG: received nonsense instead of L milepost" << std::endl;
+              break;
+            }
+
+            mileage = read_substr(buffer, 8);
+            std::cout << "DEBUG: mileage: " << mileage << std::endl;
+
+            boost::asio::write(socket, boost::asio::buffer("OK\n"), error);
+          } else {
+            // TODO: handle other commands
+          }
+        } catch(std::exception const &e)  {
+          std::cout << "Exception: " << e.what() << std::endl;
         }
-        boost::asio::write(socket, boost::asio::buffer("OK\n"), error);
       }
     }
 

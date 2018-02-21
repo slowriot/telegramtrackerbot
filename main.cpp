@@ -101,33 +101,50 @@ auto main(int argc, char *argv[])->int {
     boost::asio::io_context io_context;
     boost::asio::ip::tcp::acceptor acceptor(io_context, boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), port));
     for(;;) {
-      std::cout << "DEBUG: acceptor starting" << std::endl;
       boost::asio::ip::tcp::socket socket(io_context);
       acceptor.accept(socket);
 
       for(;;) {
-        std::cout << "DEBUG: message reading started" << std::endl;
         boost::system::error_code error;
-        boost::asio::streambuf buffer;
-        boost::asio::read_until(socket, buffer, "(", error);
-        if(error == boost::asio::error::eof) {                                  // connection closed by peer
-          break;
-        } else if(error) {
-          throw boost::system::system_error(error);
+        {
+          boost::asio::streambuf buffer;
+          boost::asio::read_until(socket, buffer, "(", error);
+          if(error == boost::asio::error::eof) {                                // connection closed by peer
+            break;
+          } else if(error) {
+            throw boost::system::system_error(error);
+          }
         }
-        std::cout << "DEBUG: read first bracket" << std::endl;
-        buffer.consume(std::numeric_limits<size_t>::max());                     // flush everything out up to the first bracket
-        boost::asio::read_until(socket, buffer, ")", error);
-        if(error == boost::asio::error::eof) {                                  // connection closed by peer
-          std::cout << "DEBUG: got EOF from client" << std::endl;
-          break;
-        } else if(error) {
-          throw boost::system::system_error(error);
+        {
+          boost::asio::streambuf buffer;
+          boost::asio::read_until(socket, buffer, ")", error);
+          if(error == boost::asio::error::eof) {                                // connection closed by peer
+            std::cout << "DEBUG: got EOF from client" << std::endl;
+            break;
+          } else if(error) {
+            throw boost::system::system_error(error);
+          }
+
+          auto read_digits = [](boost::asio::streambuf &buffer, unsigned int digits) {
+            std::string buf('\0', digits);
+            buffer.sgetn(buf.data(), digits);
+            return std::stoi(buf);
+          };
+
+          unsigned int year  = 0;
+          unsigned int month = 0;
+          unsigned int day   = 0;
+
+          year  = read_digits(buffer, 2);
+          month = read_digits(buffer, 2);
+          day   = read_digits(buffer, 2);
+
+          std::cout << "DEBUG: year: " << year << std::endl;
+          std::cout << "DEBUG: month: " << month << std::endl;
+          std::cout << "DEBUG: day: " << day << std::endl;
         }
-        std::cout << "DEBUG: read second bracket" << std::endl;
         boost::asio::write(socket, boost::asio::buffer("OK\n"), error);
       }
-      std::cout << "DEBUG: message reading completed" << std::endl;
     }
 
     #ifndef NDEBUG
